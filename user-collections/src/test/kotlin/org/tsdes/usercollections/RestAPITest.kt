@@ -36,14 +36,14 @@ internal class RestAPITest {
         RestAssured.basePath = "/api/user-collections"
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
     }
+
     @BeforeEach
     fun initTest() {
         userRepository.deleteAll()
     }
 
     @Test
-    fun testGetUser(){
-
+    fun testGetUser() {
         val id = "Test"
         userService.registerNewUser(id)
 

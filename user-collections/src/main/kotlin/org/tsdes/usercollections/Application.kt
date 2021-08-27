@@ -10,7 +10,7 @@ import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spring.web.plugins.Docket
 
 @SpringBootApplication
-class Application{
+class Application {
     @Bean
     fun swaggerApi(): Docket {
         return Docket(DocumentationType.OAS_30)

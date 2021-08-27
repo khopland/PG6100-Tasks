@@ -6,14 +6,14 @@ import kotlin.math.abs
 
 data class Collection(
 
-    val cards : List<Card>,
+    val cards: List<Card>,
 
     val prices: Map<Rarity, Int>,
 
     val millValues: Map<Rarity, Int>,
 
     val rarityProbabilities: Map<Rarity, Double>
-){
+) {
 
     constructor(dto: CollectionDto) : this(
         dto.cards.map { Card(it) },
@@ -22,10 +22,10 @@ data class Collection(
         dto.rarityProbabilities.toMap()
     )
 
-    val cardsByRarity : Map<Rarity, List<Card>> = cards.groupBy { it.rarity }
+    val cardsByRarity = cards.groupBy { it.rarity }
 
-    init{
-        if(cards.isEmpty()){
+    init {
+        if (cards.isEmpty()) {
             throw IllegalArgumentException("No cards")
         }
         Rarity.values().forEach {
@@ -35,7 +35,7 @@ data class Collection(
         }
 
         val p = rarityProbabilities.values.sum()
-        if(abs(1 - p) > 0.00001){
+        if (abs(1 - p) > 0.00001) {
             throw IllegalArgumentException("Invalid probability sum: $p")
         }
     }

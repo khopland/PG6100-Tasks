@@ -10,7 +10,7 @@ import org.tsdes.usercollections.dto.UserDto
 
 @Api(value = "/api/user-collections")
 @RequestMapping(
-   "/api/user-collections",
+    "/api/user-collections",
     produces = [(MediaType.APPLICATION_JSON_VALUE)]
 )
 @RestController

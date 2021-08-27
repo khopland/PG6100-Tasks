@@ -5,7 +5,7 @@ import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 
 @Entity
-@Table(name="user_data")
+@Table(name = "user_data")
 class User(
 
     @get:Id
@@ -19,5 +19,5 @@ class User(
     var cardPacks: Int = 0,
 
     @get:OneToMany(mappedBy = "user", cascade = [(CascadeType.ALL)])
-    var ownedCards : MutableList<CardCopy> = mutableListOf()
+    var ownedCards: MutableList<CardCopy> = mutableListOf()
 )

@@ -2,9 +2,9 @@ package org.tsdes.cards.dto
 
 import io.swagger.annotations.ApiModelProperty
 
-class CollectionDto (
+class CollectionDto(
     @get:ApiModelProperty("Info on all the cards in the game")
-    var cards : MutableList<CardDto> = mutableListOf(),
+    var cards: MutableList<CardDto> = mutableListOf(),
 
     @get:ApiModelProperty("Cost of each card, based on its rarity")
     var prices: MutableMap<Rarity, Int> = mutableMapOf(),

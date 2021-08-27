@@ -100,17 +100,11 @@ internal class UserServiceTest {
         userService.registerNewUser(userId)
 
         val before = userService.findByIdEager(userId)!!
-        val totPacks = before.cardPacks
 
-        repeat(totPacks) {
-            userService.openPack(userId)
-        }
+        repeat(before.cardPacks) { userService.openPack(userId) }
 
         assertEquals(0, userService.findByIdEager(userId)?.cardPacks)
-
-        assertThrows(IllegalArgumentException::class.java) {
-            userService.openPack(userId)
-        }
+        assertThrows(IllegalArgumentException::class.java) { userService.openPack(userId) }
     }
 
     @Test
@@ -119,17 +113,15 @@ internal class UserServiceTest {
         userService.registerNewUser(userId)
 
         val before = userRepository.findById(userId).get()
-        val coins = before.coins
 
         userService.openPack(userId)
-
         val between = userService.findByIdEager(userId)!!
         val n = between.ownedCards.sumBy { it.numberOfCopies }
         userService.millCard(userId, between.ownedCards[0].cardId!!)
 
-
         val after = userService.findByIdEager(userId)!!
-        assertTrue(after.coins > coins)
+
+        assertTrue(after.coins > before.coins)
         assertEquals(n - 1, after.ownedCards.sumBy { it.numberOfCopies })
     }
 }
