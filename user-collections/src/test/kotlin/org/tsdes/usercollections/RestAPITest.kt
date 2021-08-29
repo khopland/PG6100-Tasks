@@ -18,16 +18,13 @@ import javax.annotation.PostConstruct
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-internal class RestAPITest {
+internal class RestAPITest @Autowired constructor(
+    private val userService: UserService,
+    private val userRepository: UserRepository
+) {
 
     @LocalServerPort
     protected var port = 0
-
-    @Autowired
-    private lateinit var userService: UserService
-
-    @Autowired
-    private lateinit var userRepository: UserRepository
 
     @PostConstruct
     fun init() {
