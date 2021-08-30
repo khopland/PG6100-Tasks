@@ -19,10 +19,8 @@ import org.tsdes.usercollections.model.Collection
 @Primary
 @Service
 class FakeCardService : CardService() {
-
     override fun fetchData() {
-        val dto = FakeData.getCollectionDto()
-        super.collection = Collection(dto)
+        super.collection = Collection(FakeData.getCollectionDto())
     }
 }
 
@@ -35,9 +33,8 @@ internal class UserServiceTest @Autowired constructor(
 ) {
 
     @BeforeEach
-    fun initTest() {
-        userRepository.deleteAll()
-    }
+    fun initTest() = userRepository.deleteAll()
+
 
     @Test
     fun testCreateUser() {

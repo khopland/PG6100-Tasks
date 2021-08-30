@@ -1,17 +1,13 @@
 package org.tsdes.usercollections.model
 
-import org.tsdes.cards.dto.Rarity
 import org.tsdes.cards.dto.CollectionDto
+import org.tsdes.cards.dto.Rarity
 import kotlin.math.abs
 
 data class Collection(
-
     val cards: List<Card>,
-
     val prices: Map<Rarity, Int>,
-
     val millValues: Map<Rarity, Int>,
-
     val rarityProbabilities: Map<Rarity, Double>
 ) {
 
@@ -25,9 +21,8 @@ data class Collection(
     val cardsByRarity = cards.groupBy { it.rarity }
 
     init {
-        if (cards.isEmpty()) {
-            throw IllegalArgumentException("No cards")
-        }
+        if (cards.isEmpty()) throw IllegalArgumentException("No cards")
+
         Rarity.values().forEach {
             requireNotNull(prices[it])
             requireNotNull(millValues[it])
@@ -35,8 +30,6 @@ data class Collection(
         }
 
         val p = rarityProbabilities.values.sum()
-        if (abs(1 - p) > 0.00001) {
-            throw IllegalArgumentException("Invalid probability sum: $p")
-        }
+        if (abs(1 - p) > 0.00001) throw IllegalArgumentException("Invalid probability sum: $p")
     }
 }

@@ -6,6 +6,9 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.tsdes.usercollections.db.UserService
+import org.tsdes.usercollections.dto.Command.*
+import org.tsdes.usercollections.dto.PatchResultDto
+import org.tsdes.usercollections.dto.PatchUserDto
 import org.tsdes.usercollections.dto.UserDto
 
 @Api(value = "/api/user-collections")
@@ -16,19 +19,55 @@ import org.tsdes.usercollections.dto.UserDto
 @RestController
 class RestAPI(private val userService: UserService) {
 
-    @GetMapping(path = ["/{userId}"])
+    @ApiOperation("get a user by an id")
+    @GetMapping("/{userId}")
     fun getUserInfo(@PathVariable("userId") userId: String): ResponseEntity<UserDto> {
-
-        val user = userService.findByIdEager(userId) ?: return ResponseEntity.notFound().build()
+        val user = userService.findByIdEager(userId)
+            ?: return ResponseEntity.notFound().build()
         return ResponseEntity.status(200).body(DtoConverter.transform(user))
     }
-
-
-    @PutMapping(path = ["/{userId}"])
+    @ApiOperation("creat a user on a id")
+    @PutMapping("/{userId}")
     fun createUser(@PathVariable("userId") userId: String): ResponseEntity<Void> {
-
         val ok = userService.registerNewUser(userId)
         return if (ok) ResponseEntity.status(201).build()
         else ResponseEntity.status(400).build()
+    }
+
+    @ApiOperation("Execute a command on a user's collection, like for example buying/milling cards")
+    @PatchMapping("/{userId}", consumes = [(MediaType.APPLICATION_JSON_VALUE)])
+    fun patchUser(
+        @PathVariable("userId") userId: String,
+        @RequestBody dto: PatchUserDto
+    ): ResponseEntity<PatchResultDto> {
+        return when (dto.command) {
+            BUY_CARD -> {
+                val cardId = dto.cardId ?: return ResponseEntity.status(400).build()
+                try {
+                    userService.buyCard(userId, cardId)
+                } catch (e: java.lang.IllegalArgumentException) {
+                    return ResponseEntity.status(400).build()
+                }
+                ResponseEntity.status(200).body(PatchResultDto())
+            }
+            MILL_CARD -> {
+                val cardId = dto.cardId ?: return ResponseEntity.status(400).build()
+                try {
+                    userService.millCard(userId, cardId)
+                } catch (e: java.lang.IllegalArgumentException) {
+                    return ResponseEntity.status(400).build()
+                }
+                ResponseEntity.status(200).body(PatchResultDto())
+            }
+            OPEN_PACK -> {
+                val ids = try {
+                    userService.openPack(userId)
+                } catch (e: IllegalArgumentException) {
+                    return ResponseEntity.status(400).build()
+                }
+                ResponseEntity.status(200).body(PatchResultDto().apply { cardIdsInOpenedPack.addAll(ids) })
+            }
+            else -> ResponseEntity.status(400).build()
+        }
     }
 }
