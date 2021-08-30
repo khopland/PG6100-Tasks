@@ -1,6 +1,7 @@
 package org.tsdes.usercollections
 
 import io.restassured.RestAssured
+import io.restassured.RestAssured.given
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -44,7 +45,7 @@ internal class RestAPITest @Autowired constructor(
         val id = "Test"
         userService.registerNewUser(id)
 
-        RestAssured.given().get("/$id")
+        given().get("/$id")
             .then()
             .statusCode(200)
     }
@@ -53,7 +54,7 @@ internal class RestAPITest @Autowired constructor(
     fun testCreateUser() {
         val id = "Test"
 
-        RestAssured.given().put("/$id")
+        given().put("/$id")
             .then()
             .statusCode(201)
 
