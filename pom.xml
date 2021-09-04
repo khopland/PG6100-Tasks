@@ -14,6 +14,7 @@
         <module>user-collections</module>
         <module>rest-dto</module>
         <module>rest-exception</module>
+        <module>scores</module>
     </modules>
 
     <properties>
