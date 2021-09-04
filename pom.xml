@@ -12,6 +12,8 @@
     <modules>
         <module>cards-dto</module>
         <module>user-collections</module>
+        <module>rest-dto</module>
+        <module>rest-exception</module>
     </modules>
 
     <properties>
