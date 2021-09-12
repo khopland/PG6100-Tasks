@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
@@ -18,11 +19,13 @@ import org.tsdes.usercollections.model.Collection
 @Profile("UserServiceTest")
 @Primary
 @Service
-class FakeCardService : CardService() {
+class FakeCardService : CardService(Resilience4JCircuitBreakerFactory()) {
     override fun fetchData() {
-        super.collection = Collection(FakeData.getCollectionDto())
+        val dto = FakeData.getCollectionDto()
+        super.collection = Collection(dto)
     }
 }
+
 
 @ActiveProfiles("UserServiceTest", "test")
 @ExtendWith(SpringExtension::class)
