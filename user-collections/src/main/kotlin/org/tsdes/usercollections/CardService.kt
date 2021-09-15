@@ -57,8 +57,8 @@ class CardService(
         val uri = UriComponentsBuilder
             .fromUriString("http://${cardServiceAddress.trim()}/api/cards/collection_$version")
             .build().toUri()
-        log.error(uri.toString())
 
+        @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
         val response = cb.run(
             {
                 client.exchange(
@@ -67,17 +67,17 @@ class CardService(
                     null,
                     object : ParameterizedTypeReference<WrappedResponse<CollectionDto>>() {})
             },
-            { e ->
-                log.error("Failed to fetch data from Card Service: ${e.message}")
+            {
+                log.error("Failed to fetch data from Card Service: ${it.message}")
                 null
             }
         ) ?: return
 
         if (response.statusCodeValue != 200) log.error(
-            "Error in fetching data from Card Service. Status ${response.statusCodeValue}. Message:${response.body.message}"
+            "Error in fetching data from Card Service. Status ${response.statusCodeValue}. Message:${response.body?.message}"
         )
         try {
-            collection = Collection(response.body.data!!)
+            collection = Collection(response.body?.data!!)
         } catch (e: Exception) {
             log.error("Failed to parse card collection info: ${e.message}")
         }
