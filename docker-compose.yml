@@ -13,6 +13,14 @@ services:
   discovery:
     image: 'consul:1.8'
 
+  redis:
+    image: "redis:latest"
+
+  postgres-auth:
+    image: 'postgres:10'
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
   postgres-user-collections:
     image: 'postgres:10'
     environment:
@@ -22,6 +30,15 @@ services:
     image: 'postgres:10'
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    depends_on:
+      - api-gateway
+      - redis
+      - postgres-auth
 
   cards_0:
     build:

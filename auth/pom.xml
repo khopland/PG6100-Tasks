@@ -17,10 +17,12 @@
         <dependency>
             <groupId>org.tsdes</groupId>
             <artifactId>rest-dto</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.tsdes</groupId>
             <artifactId>rest-exception</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
