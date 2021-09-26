@@ -17,6 +17,7 @@
         <module>scores</module>
         <module>cards</module>
         <module>api-gateway</module>
+        <module>e2e-tests</module>
     </modules>
 
     <properties>
@@ -120,7 +121,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>28.1-jre</version>
+                <version>30.0-jre</version>
             </dependency>
             <!-- Database -->
             <dependency>
@@ -414,20 +415,6 @@
 
     <build>
         <plugins>
-            <!--
-                If you have modules with both Kotlin and Java code, the documentation states
-                that it is important that the Kotlin compiler plugin is executed before the Java compiler.
-                See https://kotlinlang.org/docs/kotlin-docs.pdf
-
-                However, here we are not in such case. There is one exception though.
-                In some modules (eg SOAP) we do automatically generate Java source code before
-                the compilation phase.
-                To make it usable from Kotlin, we need to compile such Java code before the
-                Kotlin one. Note: that Java code does not call any Kotlin code.
-                Therefore, here we force the execution of the Java compiler BEFORE
-                the one of Kotlin.
-              -->
-
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -438,37 +425,14 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
             </plugin>
         </plugins>
-        <!--
-            like dependencyManagement, this only defines which (and how) plugins to use.
-            to actually activate them, they need to be directly under <plugins> (without
-            the need to reset all their configurations).
-            Note: some plugins are default in Maven, like the compiler.
-            To see what actually executed, you can look at the logs.
-
-            WARNING: make sure that in your projects you do have the <version> tags
-            for your plugins. If you do not, Maven might silently ignore it...
-            this is very different from forgetting a <version> in an imported library,
-            as that would usually end up in a compilation error (as some needed classes/methods
-            would not be found on the classpath)
-        -->
         <pluginManagement>
             <plugins>
 
                 <plugin>
-                    <!-- see https://kotlinlang.org/docs/reference/using-maven.html -->
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <groupId>org.jetbrains.kotlin</groupId>
                     <version>${version.kotlin}</version>
-                    <!--
-                        Kotlin has a major "limitation" that all classes are final by default.
-                        Someone call it a "feature", others (like me) call it a "design flaw".
-                        See more at: https://discuss.kotlinlang.org/t/classes-final-by-default/166/77
 
-                        Why is it a problem? for example, it does not play well with all major frameworks
-                        out there like JPA, Spring, mocking, etc, as they require to create proxy
-                        classes that extend the classes you write.
-                        So here we have to use special plugins to bypass this Kotlin "feature"...
-                    -->
                     <configuration>
                         <jvmTarget>${version.java}</jvmTarget>
                         <compilerPlugins>
@@ -560,12 +524,6 @@
                     </executions>
                 </plugin>
 
-                <plugin>
-                    <!-- Needed for SOAP clients -->
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>jaxws-maven-plugin</artifactId>
-                    <version>2.5</version>
-                </plugin>
                 <plugin>
                     <!-- For manual handling of generated resources -->
                     <groupId>org.codehaus.mojo</groupId>
