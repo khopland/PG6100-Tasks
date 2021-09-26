@@ -1,6 +1,6 @@
 package org.tsdes.e2e
 
-import io.restassured.RestAssured
+import io.restassured.RestAssured.*
 import io.restassured.http.ContentType
 import org.awaitility.Awaitility
 import org.hamcrest.CoreMatchers
@@ -19,11 +19,10 @@ import java.util.concurrent.TimeUnit
 @Disabled
 @Testcontainers
 class RestIT {
-
     companion object {
         init {
-            RestAssured.enableLoggingOfRequestAndResponseIfValidationFails()
-            RestAssured.port = 80
+            enableLoggingOfRequestAndResponseIfValidationFails()
+            port = 80
         }
 
         class KDockerComposeContainer(id: String, path: File) :
@@ -51,7 +50,7 @@ class RestIT {
                 .pollInterval(Duration.ofSeconds(10))
                 .ignoreExceptions()
                 .until {
-                    RestAssured.given().baseUri("http://${env.getServiceHost("discovery", 8500)}")
+                    given().baseUri("http://${env.getServiceHost("discovery", 8500)}")
                         .port(env.getServicePort("discovery", 8500))
                         .get("/v1/agent/services")
                         .then()
@@ -67,7 +66,7 @@ class RestIT {
             .pollInterval(Duration.ofSeconds(10))
             .ignoreExceptions()
             .until {
-                RestAssured.given().get("/api/cards/collection_v1_000")
+                given().get("/api/cards/collection_v1_000")
                     .then()
                     .statusCode(200)
                     .body("data.cards.size", Matchers.greaterThan(10))
@@ -81,7 +80,7 @@ class RestIT {
             .pollInterval(Duration.ofSeconds(10))
             .ignoreExceptions()
             .until {
-                RestAssured.given().accept(ContentType.JSON)
+                given().accept(ContentType.JSON)
                     .get("/api/scores")
                     .then()
                     .statusCode(200)
@@ -96,23 +95,56 @@ class RestIT {
             .pollInterval(Duration.ofSeconds(10))
             .ignoreExceptions()
             .until {
-
                 val id = "foo_testCreateUser_" + System.currentTimeMillis()
+                val password = "123456"
 
-                RestAssured.given().get("/api/user-collections/$id")
+                given().get("/api/user-collections/$id")
                     .then()
-                    .statusCode(404)
+                    .statusCode(401)
 
+                val cookie = given().contentType(ContentType.JSON)
+                    .body("""{"userId": "$id","password": "$password"}""".trimIndent())
+                    .post("/api/auth/signUp")
+                    .then()
+                    .statusCode(201)
+                    .header("Set-Cookie", CoreMatchers.not(CoreMatchers.equalTo(null)))
+                    .extract().cookie("SESSION")
 
-                RestAssured.given().put("/api/user-collections/$id")
+                given().cookie("SESSION", cookie)
+                    .put("/api/user-collections/$id")
                     .then()
                     .statusCode(201)
 
-                RestAssured.given().get("/api/user-collections/$id")
+                given().cookie("SESSION", cookie)
+                    .get("/api/user-collections/$id")
                     .then()
                     .statusCode(200)
 
                 true
             }
     }
+
+    @Test
+    fun testUserCollectionAccessControl() {
+        val alice = "alice_testUserCollectionAccessControl_" + System.currentTimeMillis()
+        val eve = "eve_testUserCollectionAccessControl_" + System.currentTimeMillis()
+
+        given().get("/api/user-collections/$alice").then().statusCode(401)
+        given().put("/api/user-collections/$alice").then().statusCode(401)
+        given().patch("/api/user-collections/$alice").then().statusCode(401)
+
+        val cookie = given().contentType(ContentType.JSON)
+            .body("""{"userId": "$eve","password": "123456"}""".trimIndent())
+            .post("/api/auth/signUp")
+            .then()
+            .statusCode(201)
+            .header("Set-Cookie", CoreMatchers.not(CoreMatchers.equalTo(null)))
+            .extract().cookie("SESSION")
+
+        given().cookie("SESSION", cookie)
+            .get("/api/user-collections/$alice")
+            .then()
+            .statusCode(403)
+    }
+
 }

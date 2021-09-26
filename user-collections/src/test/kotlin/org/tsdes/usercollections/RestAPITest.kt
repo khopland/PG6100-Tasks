@@ -63,29 +63,29 @@ internal class RestAPITest @Autowired constructor(
         @JvmStatic
         fun initClass() {
             wiremockServer =
-                WireMockServer(
-                    WireMockConfiguration.wireMockConfig().dynamicPort().notifier(ConsoleNotifier(true))
-                ).apply {
-                    start()
-                    stubFor(
-                        WireMock.get(WireMock.urlMatching("/api/cards/collection_.*"))
-                            .willReturn(
-                                WireMock.aResponse()
-                                    .withStatus(200)
-                                    .withHeader("Content-Type", "application/json; charset=utf-8")
-                                    .withBody(
-                                        ObjectMapper().writeValueAsString(
-                                            WrappedResponse(200, FakeData.getCollectionDto()).validated()
-                                        )
-                                    )
-                            )
+                WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort().notifier(ConsoleNotifier(true)))
+            wiremockServer.start()
+
+
+            val dto = WrappedResponse(code = 200, data = FakeData.getCollectionDto()).validated()
+            val json = ObjectMapper().writeValueAsString(dto)
+
+            wiremockServer.stubFor(
+                WireMock.get(WireMock.urlMatching("/api/cards/collection_.*"))
+                    .willReturn(
+                        WireMock.aResponse()
+                            .withStatus(200)
+                            .withHeader("Content-Type", "application/json; charset=utf-8")
+                            .withBody(json)
                     )
-                }
+            )
         }
 
         @AfterAll
         @JvmStatic
-        fun tearDown() = wiremockServer.stop()
+        fun tearDown() {
+            wiremockServer.stop()
+        }
 
         class Initializer : ApplicationContextInitializer<ConfigurableApplicationContext> {
             override fun initialize(configurableApplicationContext: ConfigurableApplicationContext) {
@@ -97,21 +97,35 @@ internal class RestAPITest @Autowired constructor(
 
 
     @Test
-    fun testGetUser() {
-        val id = "Test"
+    fun testAccessControl() {
+        val id = "foo"
 
+        given().get("/$id").then().statusCode(401)
+        given().put("/$id").then().statusCode(401)
+        given().patch("/$id").then().statusCode(401)
+
+        given().auth().basic("bar", "123")
+            .get("/$id")
+            .then()
+            .statusCode(403)
+    }
+
+    @Test
+    fun testGetUser() {
+        val id = "foo"
         userService.registerNewUser(id)
 
-        given().get("/$id")
+        given().auth().basic(id, "123")
+            .get("/$id")
             .then()
             .statusCode(200)
     }
 
     @Test
     fun testCreateUser() {
-        val id = "Test"
+        val id = "foo"
 
-        given().put("/$id")
+        given().auth().basic(id, "123").put("/$id")
             .then()
             .statusCode(201)
 
@@ -120,13 +134,12 @@ internal class RestAPITest @Autowired constructor(
 
     @Test
     fun testBuyCard() {
-        val userId = "Test"
-
-        given().put("/$userId").then().statusCode(201)
-
+        val userId = "foo"
         val cardId = "c00"
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic(userId, "123").put("/$userId").then().statusCode(201)
+
+        given().auth().basic(userId, "123").contentType(ContentType.JSON)
             .body(PatchUserDto(Command.BUY_CARD, cardId))
             .patch("/$userId")
             .then()
@@ -137,15 +150,15 @@ internal class RestAPITest @Autowired constructor(
 
     @Test
     fun testOpenPack() {
-        val userId = "Test"
+        val userId = "foo"
 
-        given().put("/$userId").then().statusCode(201)
+        given().auth().basic(userId, "123").put("/$userId").then().statusCode(201)
 
         val before = userService.findByIdEager(userId)!!
         val totPacks = before.cardPacks
         assertTrue(totPacks > 0)
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic(userId, "123").contentType(ContentType.JSON)
             .body(PatchUserDto(Command.OPEN_PACK))
             .patch("/$userId")
             .then()
@@ -162,13 +175,13 @@ internal class RestAPITest @Autowired constructor(
 
     @Test
     fun testMillCard() {
-        val userId = "Test"
+        val userId = "foo"
 
-        given().put("/$userId").then().statusCode(201)
+        given().auth().basic(userId, "123").put("/$userId").then().statusCode(201)
 
         val before = userRepository.findById(userId).get()
 
-        given().contentType(ContentType.JSON)
+        given().auth().basic(userId, "123").contentType(ContentType.JSON)
             .body(PatchUserDto(Command.OPEN_PACK))
             .patch("/$userId")
             .then()
@@ -177,7 +190,7 @@ internal class RestAPITest @Autowired constructor(
         val between = userService.findByIdEager(userId)!!
 
         val cardId = between.ownedCards[0].cardId!!
-        given().contentType(ContentType.JSON)
+        given().auth().basic(userId, "123").contentType(ContentType.JSON)
             .body(PatchUserDto(Command.MILL_CARD, cardId))
             .patch("/$userId")
             .then()
