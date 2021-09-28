@@ -5,6 +5,7 @@ import io.restassured.http.ContentType
 import org.awaitility.Awaitility
 import org.hamcrest.CoreMatchers
 import org.hamcrest.Matchers
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -57,6 +58,12 @@ class RestIT {
                         .body("size()", CoreMatchers.equalTo(5))
                     true
                 }
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun afterTests() {
+            env.stop()
         }
     }
 
@@ -113,7 +120,7 @@ class RestIT {
                 given().cookie("SESSION", cookie)
                     .put("/api/user-collections/$id")
                     .then()
-                    .statusCode(201)
+                    .statusCode(400)
 
                 given().cookie("SESSION", cookie)
                     .get("/api/user-collections/$id")
@@ -145,6 +152,58 @@ class RestIT {
             .get("/api/user-collections/$alice")
             .then()
             .statusCode(403)
+    }
+
+    @Test
+    fun testAMQPSignUp() {
+        Awaitility.await().atMost(120, TimeUnit.SECONDS)
+            .pollInterval(Duration.ofSeconds(10))
+            .ignoreExceptions()
+            .until {
+                val id = "foo_testCreateUser_" + System.currentTimeMillis()
+                val password = "123456"
+                given().get("/api/auth/user")
+                    .then()
+                    .statusCode(401)
+
+                given().put("/api/user-collections/$id")
+                    .then()
+                    .statusCode(401)
+
+                given().get("/api/scores/$id")
+                    .then()
+                    .statusCode(404)
+
+                val cookie = given().contentType(ContentType.JSON)
+                    .body("""{"userId": "$id","password": "$password"}""".trimIndent())
+                    .post("/api/auth/signUp")
+                    .then()
+                    .statusCode(201)
+                    .header("Set-Cookie", CoreMatchers.not(CoreMatchers.equalTo(null)))
+                    .extract().cookie("SESSION")
+
+                given().cookie("SESSION", cookie)
+                    .get("/api/auth/user")
+                    .then()
+                    .statusCode(200)
+
+                Awaitility.await().atMost(10, TimeUnit.SECONDS)
+                    .pollInterval(Duration.ofSeconds(2))
+                    .ignoreExceptions()
+                    .until {
+                        given().cookie("SESSION", cookie)
+                            .get("/api/user-collections/$id")
+                            .then()
+                            .statusCode(200)
+
+                        given().get("/api/scores/$id")
+                            .then()
+                            .statusCode(200)
+                            .body("data.score", CoreMatchers.equalTo(0))
+                        true
+                    }
+                true
+            }
     }
 
 }

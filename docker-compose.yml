@@ -10,6 +10,9 @@ services:
     depends_on:
       - discovery
 
+  rabbitmq:
+    image: "rabbitmq:3"
+
   discovery:
     image: 'consul:1.8'
 
