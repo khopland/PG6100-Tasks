@@ -23,9 +23,9 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
          */
         const val INTERNAL_SERVER_ERROR_MESSAGE = "Internal server error"
 
-        fun handlePossibleConstraintViolation(e: Exception){
+        fun handlePossibleConstraintViolation(e: Exception) {
             val cause = Throwables.getRootCause(e)
-            if(cause is ConstraintViolationException) {
+            if (cause is ConstraintViolationException) {
                 throw cause
             }
             throw e
@@ -54,7 +54,8 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
             : ResponseEntity<Any> {
 
         return handleExceptionInternal(
-                ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request)
+            ex, null, HttpHeaders(), HttpStatus.valueOf(ex.httpCode), request
+        )
     }
 
 
@@ -80,7 +81,7 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
     protected fun handleFrameworkExceptionsForUserInputs(ex: Exception, request: WebRequest)
             : ResponseEntity<Any> {
 
-        if(ex is ConstraintViolationException) {
+        if (ex is ConstraintViolationException) {
             val messages = StringBuilder()
 
             for (violation in ex.constraintViolations) {
@@ -88,37 +89,40 @@ class RestResponseEntityExceptionHandler : ResponseEntityExceptionHandler() {
             }
 
             val msg = ex.constraintViolations.map { it.propertyPath.toString() + " " + it.message }
-                    .joinToString("; ")
+                .joinToString("; ")
 
             return handleExceptionInternal(
-                    RuntimeException(msg), null, HttpHeaders(), HttpStatus.valueOf(400), request)
+                RuntimeException(msg), null, HttpHeaders(), HttpStatus.valueOf(400), request
+            )
         }
 
         return handleExceptionInternal(
-                ex, null, HttpHeaders(), HttpStatus.valueOf(400), request)
+            ex, null, HttpHeaders(), HttpStatus.valueOf(400), request
+        )
     }
-    
+
     @ExceptionHandler(Exception::class)
     fun handleBugsForUnexpectedExceptions(ex: Exception, request: WebRequest): ResponseEntity<Any> {
 
         return handleExceptionInternal(
-                RuntimeException(INTERNAL_SERVER_ERROR_MESSAGE),
-                null, HttpHeaders(),
-                HttpStatus.valueOf(500), request)
+            RuntimeException(INTERNAL_SERVER_ERROR_MESSAGE),
+            null, HttpHeaders(),
+            HttpStatus.valueOf(500), request
+        )
     }
 
 
     override fun handleExceptionInternal(
-            ex: Exception,
-            body: Any?,
-            headers: HttpHeaders,
-            status: HttpStatus,
-            request: WebRequest
-    ) : ResponseEntity<Any> {
+        ex: Exception,
+        body: Any?,
+        headers: HttpHeaders,
+        status: HttpStatus,
+        request: WebRequest
+    ): ResponseEntity<Any> {
 
         val dto = WrappedResponse<Any>(
-                code  = status.value(),
-                message = ex.message
+            code = status.value(),
+            message = ex.message
         ).validated()
 
         return ResponseEntity(dto, headers, status)

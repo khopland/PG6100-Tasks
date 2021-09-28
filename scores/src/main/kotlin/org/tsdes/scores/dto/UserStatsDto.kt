@@ -8,13 +8,13 @@ data class UserStatsDto(
     var userId: String? = null,
 
     @get:ApiModelProperty("How many victories the player had so far")
-    var victories : Int? = null,
+    var victories: Int? = null,
 
     @get:ApiModelProperty("How many defeats the player had so far")
     var defeats: Int? = null,
 
     @get:ApiModelProperty("How many draws the player had so far")
-    var draws : Int? = null,
+    var draws: Int? = null,
 
     @get:ApiModelProperty("The current score of the player")
     var score: Int? = null
