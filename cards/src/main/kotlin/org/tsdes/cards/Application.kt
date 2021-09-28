@@ -20,6 +20,7 @@ class Application {
             .paths(PathSelectors.any())
             .build()
     }
+
     private fun apiInfo(): ApiInfo {
         return ApiInfoBuilder()
             .title("API for Cards")

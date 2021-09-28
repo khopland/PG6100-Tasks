@@ -19,10 +19,9 @@ import springfox.documentation.spring.web.plugins.Docket
 class Application {
     @LoadBalanced
     @Bean
-    fun loadBalancedClient(): RestTemplate {
+    fun loadBalancedClient() : RestTemplate {
         return RestTemplate()
     }
-
     @Bean
     fun swaggerApi(): Docket {
         return Docket(DocumentationType.OAS_30)
@@ -51,9 +50,8 @@ class Application {
     }
 
     @Bean
-    fun binding(
-        fanout: FanoutExchange,
-        queue: Queue
+    fun binding(fanout: FanoutExchange,
+                queue: Queue
     ): Binding {
         return BindingBuilder.bind(queue).to(fanout)
     }

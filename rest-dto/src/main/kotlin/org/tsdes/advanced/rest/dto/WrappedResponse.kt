@@ -9,17 +9,17 @@ import io.swagger.annotations.ApiModelProperty
  */
 open class WrappedResponse<T>(
 
-        @ApiModelProperty("The HTTP status code of the response")
-        var code: Int? = null,
+    @ApiModelProperty("The HTTP status code of the response")
+    var code: Int? = null,
 
-        @ApiModelProperty("The wrapped payload")
-        var data: T? = null,
+    @ApiModelProperty("The wrapped payload")
+    var data: T? = null,
 
-        @ApiModelProperty("Error message in case where was an error")
-        var message: String? = null,
+    @ApiModelProperty("Error message in case where was an error")
+    var message: String? = null,
 
-        @ApiModelProperty("String representing either 'success', user error ('error') or server failure ('fail')")
-        var status: ResponseStatus? = null
+    @ApiModelProperty("String representing either 'success', user error ('error') or server failure ('fail')")
+    var status: ResponseStatus? = null
 ) {
 
     /**
@@ -32,15 +32,15 @@ open class WrappedResponse<T>(
      *
      * @throws IllegalStateException if validation fails
      */
-    fun validated() : WrappedResponse<T>{
+    fun validated(): WrappedResponse<T> {
 
-        val c : Int = code ?: throw IllegalStateException("Missing HTTP code")
+        val c: Int = code ?: throw IllegalStateException("Missing HTTP code")
 
-        if(c !in 100..599){
+        if (c !in 100..599) {
             throw  IllegalStateException("Invalid HTTP code: $code")
         }
 
-        if(status == null){
+        if (status == null) {
             status = when (c) {
                 in 100..399 -> ResponseStatus.SUCCESS
                 in 400..499 -> ResponseStatus.ERROR
@@ -48,17 +48,17 @@ open class WrappedResponse<T>(
                 else -> throw  IllegalStateException("Invalid HTTP code: $code")
             }
         } else {
-            val wrongSuccess =  (status ==  ResponseStatus.SUCCESS && c !in 100..399)
-            val wrongError =  (status ==  ResponseStatus.ERROR && c !in 400..499)
-            val wrongFail =  (status ==  ResponseStatus.FAIL && c !in 500..599)
+            val wrongSuccess = (status == ResponseStatus.SUCCESS && c !in 100..399)
+            val wrongError = (status == ResponseStatus.ERROR && c !in 400..499)
+            val wrongFail = (status == ResponseStatus.FAIL && c !in 500..599)
 
             val wrong = wrongSuccess || wrongError || wrongFail
-            if(wrong){
+            if (wrong) {
                 throw IllegalArgumentException("Status $status is not correct for HTTP code $c")
             }
         }
 
-        if(status != ResponseStatus.SUCCESS && message == null){
+        if (status != ResponseStatus.SUCCESS && message == null) {
             throw IllegalArgumentException("Failed response, but with no describing 'message' for it")
         }
 
