@@ -28,3 +28,7 @@ spring:
           uri: lb://user-collections-service
           predicates:
             - Path=/api/user-collections/**
+        - id: frontend
+          uri: http://frontend:3000
+          predicates:
+            - Path=/**
