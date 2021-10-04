@@ -15,6 +15,8 @@ services:
 
   discovery:
     image: 'consul:1.8'
+    environment:
+      - CONSUL_LOCAL_CONFIG={"log_level":"info"}
 
   redis:
     image: "redis:latest"
@@ -33,6 +35,12 @@ services:
     image: 'postgres:10'
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
+
+  frontend:
+    build:
+      context: ./svelte
+      dockerfile: Dockerfile
+
 
   auth:
     build:
@@ -67,6 +75,8 @@ services:
       - api-gateway
       - discovery
       - postgres-user-collections
+      - auth
+      - rabbitmq
 
   scores:
     build:
@@ -76,3 +86,5 @@ services:
       - api-gateway
       - discovery
       - postgres-scores
+      - auth
+      - rabbitmq

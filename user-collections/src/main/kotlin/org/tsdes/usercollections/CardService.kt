@@ -75,12 +75,12 @@ class CardService(
 
         if (response.statusCodeValue != 200) log.error(
             "Error in fetching data from Card Service. Status ${response.statusCodeValue}. Message:${response.body?.message}"
-        )
-        try {
-            collection = Collection(response.body?.data!!)
-        } catch (e: Exception) {
-            log.error("Failed to parse card collection info: ${e.message}")
-        }
+        ) else
+            try {
+                collection = Collection(response.body!!.data!!)
+            } catch (e: Exception) {
+                log.error("Failed to parse card collection info: ${e.message}")
+            }
     }
 
     private fun verifyCollection() {
