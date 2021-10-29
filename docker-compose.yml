@@ -26,21 +26,10 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
 
-  postgres-user-collections:
-    image: 'postgres:10'
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-
-  postgres-scores:
-    image: 'postgres:10'
-    environment:
-      - POSTGRES_HOST_AUTH_METHOD=trust
-
   frontend:
     build:
-      context: ./svelte
+      context: ./frontend
       dockerfile: Dockerfile
-
 
   auth:
     build:
@@ -51,40 +40,3 @@ services:
       - redis
       - postgres-auth
 
-  cards_0:
-    build:
-      context: ./cards
-      dockerfile: Dockerfile
-    depends_on:
-      - api-gateway
-      - discovery
-
-  cards_1:
-    build:
-      context: ./cards
-      dockerfile: Dockerfile
-    depends_on:
-      - api-gateway
-      - discovery
-
-  user-collections:
-    build:
-      context: ./user-collections
-      dockerfile: Dockerfile
-    depends_on:
-      - api-gateway
-      - discovery
-      - postgres-user-collections
-      - auth
-      - rabbitmq
-
-  scores:
-    build:
-      context: ./scores
-      dockerfile: Dockerfile
-    depends_on:
-      - api-gateway
-      - discovery
-      - postgres-scores
-      - auth
-      - rabbitmq

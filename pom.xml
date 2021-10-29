@@ -10,12 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>cards-dto</module>
-        <module>user-collections</module>
         <module>rest-dto</module>
         <module>rest-exception</module>
-        <module>scores</module>
-        <module>cards</module>
         <module>api-gateway</module>
         <module>e2e-tests</module>
         <module>auth</module>

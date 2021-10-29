@@ -31,15 +31,12 @@ class RestIT {
 
         @Container
         @JvmField
-        val env: KDockerComposeContainer = KDockerComposeContainer("card-game", File("../docker-compose.yml"))
+        val env: KDockerComposeContainer = KDockerComposeContainer("E2E", File("../docker-compose.yml"))
             .withExposedService(
                 "discovery", 8500,
                 Wait.forListeningPort().withStartupTimeout(Duration.ofSeconds(300))
             )
-            .withLogConsumer("cards_0") { print("[CARD_0] " + it.utf8String) }
-            .withLogConsumer("cards_1") { print("[CARD_1] " + it.utf8String) }
-            .withLogConsumer("user-collections") { print("[USER_COLLECTIONS] " + it.utf8String) }
-            .withLogConsumer("scores") { print("[SCORES] " + it.utf8String) }
+            .withLogConsumer("auth") { print("[auth] " + it.utf8String) }
             .withLocalCompose(true)
 
         @BeforeAll
@@ -66,36 +63,6 @@ class RestIT {
             env.stop()
         }
     }
-
-    @Test
-    fun testGetCollection() {
-        Awaitility.await().atMost(120, TimeUnit.SECONDS)
-            .pollInterval(Duration.ofSeconds(10))
-            .ignoreExceptions()
-            .until {
-                given().get("/api/cards/collection_v1_000")
-                    .then()
-                    .statusCode(200)
-                    .body("data.cards.size", Matchers.greaterThan(10))
-                true
-            }
-    }
-
-    @Test
-    fun testGetScores() {
-        Awaitility.await().atMost(120, TimeUnit.SECONDS)
-            .pollInterval(Duration.ofSeconds(10))
-            .ignoreExceptions()
-            .until {
-                given().accept(ContentType.JSON)
-                    .get("/api/scores")
-                    .then()
-                    .statusCode(200)
-                    .body("data.list.size()", Matchers.greaterThanOrEqualTo(0))
-                true
-            }
-    }
-
     @Test
     fun testCreateUser() {
         Awaitility.await().atMost(120, TimeUnit.SECONDS)
@@ -105,10 +72,6 @@ class RestIT {
                 val id = "foo_testCreateUser_" + System.currentTimeMillis()
                 val password = "123456"
 
-                given().get("/api/user-collections/$id")
-                    .then()
-                    .statusCode(401)
-
                 val cookie = given().contentType(ContentType.JSON)
                     .body("""{"userId": "$id","password": "$password"}""".trimIndent())
                     .post("/api/auth/signUp")
@@ -117,93 +80,7 @@ class RestIT {
                     .header("Set-Cookie", CoreMatchers.not(CoreMatchers.equalTo(null)))
                     .extract().cookie("SESSION")
 
-                given().cookie("SESSION", cookie)
-                    .put("/api/user-collections/$id")
-                    .then()
-                    .statusCode(400)
-
-                given().cookie("SESSION", cookie)
-                    .get("/api/user-collections/$id")
-                    .then()
-                    .statusCode(200)
-
                 true
             }
     }
-
-    @Test
-    fun testUserCollectionAccessControl() {
-        val alice = "alice_testUserCollectionAccessControl_" + System.currentTimeMillis()
-        val eve = "eve_testUserCollectionAccessControl_" + System.currentTimeMillis()
-
-        given().get("/api/user-collections/$alice").then().statusCode(401)
-        given().put("/api/user-collections/$alice").then().statusCode(401)
-        given().patch("/api/user-collections/$alice").then().statusCode(401)
-
-        val cookie = given().contentType(ContentType.JSON)
-            .body("""{"userId": "$eve","password": "123456"}""".trimIndent())
-            .post("/api/auth/signUp")
-            .then()
-            .statusCode(201)
-            .header("Set-Cookie", CoreMatchers.not(CoreMatchers.equalTo(null)))
-            .extract().cookie("SESSION")
-
-        given().cookie("SESSION", cookie)
-            .get("/api/user-collections/$alice")
-            .then()
-            .statusCode(403)
-    }
-
-    @Test
-    fun testAMQPSignUp() {
-        Awaitility.await().atMost(120, TimeUnit.SECONDS)
-            .pollInterval(Duration.ofSeconds(10))
-            .ignoreExceptions()
-            .until {
-                val id = "foo_testCreateUser_" + System.currentTimeMillis()
-                val password = "123456"
-                given().get("/api/auth/user")
-                    .then()
-                    .statusCode(401)
-
-                given().put("/api/user-collections/$id")
-                    .then()
-                    .statusCode(401)
-
-                given().get("/api/scores/$id")
-                    .then()
-                    .statusCode(404)
-
-                val cookie = given().contentType(ContentType.JSON)
-                    .body("""{"userId": "$id","password": "$password"}""".trimIndent())
-                    .post("/api/auth/signUp")
-                    .then()
-                    .statusCode(201)
-                    .header("Set-Cookie", CoreMatchers.not(CoreMatchers.equalTo(null)))
-                    .extract().cookie("SESSION")
-
-                given().cookie("SESSION", cookie)
-                    .get("/api/auth/user")
-                    .then()
-                    .statusCode(200)
-
-                Awaitility.await().atMost(10, TimeUnit.SECONDS)
-                    .pollInterval(Duration.ofSeconds(2))
-                    .ignoreExceptions()
-                    .until {
-                        given().cookie("SESSION", cookie)
-                            .get("/api/user-collections/$id")
-                            .then()
-                            .statusCode(200)
-
-                        given().get("/api/scores/$id")
-                            .then()
-                            .statusCode(200)
-                            .body("data.score", CoreMatchers.equalTo(0))
-                        true
-                    }
-                true
-            }
-    }
-
 }

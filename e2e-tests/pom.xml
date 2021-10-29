@@ -24,7 +24,7 @@
 
     <dependencies>
         <!-- Force this module to be built last -->
-        <dependency>
+        <!-- <dependency>
             <groupId>org.tsdes</groupId>
             <artifactId>cards</artifactId>
             <version>${project.version}</version>
@@ -38,7 +38,7 @@
             <groupId>org.tsdes</groupId>
             <artifactId>user-collections</artifactId>
             <version>${project.version}</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.tsdes</groupId>
             <artifactId>api-gateway</artifactId>
