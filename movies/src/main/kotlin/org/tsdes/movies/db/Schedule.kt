@@ -6,6 +6,7 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.ManyToOne
+import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 
@@ -23,7 +24,11 @@ class Schedule {
     var time: Time? = null
 
     @get:NotNull
-    var week: DayOfWeek? = null
+    var dayOfWeek: DayOfWeek? = null
+
+    @get:Min(1)
+    @get:Max(52)
+    var week: Int = 0
 
     @get:Min(0)
     var roomNumber: Int = 0

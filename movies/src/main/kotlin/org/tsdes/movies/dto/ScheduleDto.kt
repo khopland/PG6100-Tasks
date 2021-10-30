@@ -9,7 +9,10 @@ data class ScheduleDto(
     var time: Time? = null,
 
     @get:ApiModelProperty("The day of the week the movie is going")
-    var week: DayOfWeek? = null,
+    var dayOfWeek: DayOfWeek? = null,
+
+    @get:ApiModelProperty("the week number its on")
+    var week: Int = 0,
 
     @get:ApiModelProperty("the room number")
     var roomNumber: Int = 0

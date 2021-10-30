@@ -23,7 +23,7 @@ class WebSecurityConfig : WebSecurityConfigurerAdapter() {
             .antMatchers("/swagger*/**", "/v3/api-docs", "/actuator/**").permitAll()
             .antMatchers(HttpMethod.PUT, "/api/movies/{id}")
             .access("hasRole('ADMIN')")
-            .antMatchers("/api/movies/{id}").permitAll()
+            .antMatchers(HttpMethod.GET,"/api/movies/**").permitAll()
             .anyRequest().denyAll()
             .and()
             .csrf().disable()

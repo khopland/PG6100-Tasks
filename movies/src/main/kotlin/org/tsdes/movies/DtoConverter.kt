@@ -19,4 +19,7 @@ object DtoConverter {
         week = schedule.week
         roomNumber = schedule.roomNumber
     }
+
+    fun transform(movies: Iterable<Movie>): List<MovieDto> = movies.map { transform(it) }
+
 }

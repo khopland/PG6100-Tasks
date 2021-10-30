@@ -12,7 +12,8 @@ create table schedule
     id          bigint       not null,
     room_number integer      not null check (room_number >= 0),
     time        time         not null,
-    week        integer      not null,
+    day_of_Week integer      not null,
+    week        integer      not null check (week >= 1 AND week <= 52),
     movie_id    varchar(255) not null,
     primary key (id)
 );
