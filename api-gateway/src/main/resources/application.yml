@@ -16,6 +16,10 @@ spring:
           uri: http://auth:8080
           predicates:
             - Path=/api/auth/**
+        - id: Movies
+          uri: http://movies:8080
+          predicates:
+            - Path=/api/movies/**
         - id: frontend
           uri: http://frontend:3000
           predicates:

@@ -26,6 +26,11 @@ services:
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
 
+  postgres-movie:
+    image: 'postgres:10'
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
   frontend:
     build:
       context: ./frontend
@@ -39,4 +44,15 @@ services:
       - api-gateway
       - redis
       - postgres-auth
+      - rabbitmq
+
+  movies:
+    build:
+      context: ./movies
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres-movie
+      - redis
+      - api-gateway
+      - rabbitmq
 
