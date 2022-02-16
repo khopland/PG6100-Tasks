@@ -34,7 +34,7 @@
         <version.jacoco>0.8.5</version.jacoco>
         <!--  FIXME version 1.4.200 breaks tests, eg in JPA-JPQL  -->
         <version.h2>1.4.197</version.h2>
-        <version.postgres>42.1.4</version.postgres>
+        <version.postgres>42.3.3</version.postgres>
         <version.testcontainers>1.15.1</version.testcontainers>
         <version.selenium>3.141.59</version.selenium>
         <version.restassured>4.2.0</version.restassured>
