@@ -44,7 +44,7 @@ internal class RestApiTest {
         given().get("/api/cards/collection_$LATEST")
             .then()
             .statusCode(200)
-            .body("data.cards.size", greaterThan(10))
+            .body("data.cards.size()", greaterThan(10))
     }
 
     @Test
@@ -52,6 +52,6 @@ internal class RestApiTest {
         given().get("/api/cards/collection_v0_002")
             .then()
             .statusCode(200)
-            .body("data.cards.size", greaterThan(10))
+            .body("data.cards.size()", greaterThan(10))
     }
 }
