@@ -32,7 +32,7 @@
         <version.junit>5.7.0</version.junit>
         <version.junit.platform>1.5.2</version.junit.platform>
         <version.jacoco>0.8.5</version.jacoco>
-        <version.h2>2.1.214</version.h2>
+        <version.h2>2.2.220</version.h2>
         <version.postgres>42.4.3</version.postgres>
         <version.flyway>8.4.4</version.flyway>
         <version.testcontainers>1.15.1</version.testcontainers>
